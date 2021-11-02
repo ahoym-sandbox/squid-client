@@ -1,3 +1,4 @@
+import { decode } from "querystring";
 import { useEffect, useState } from "react";
 import "./App.css";
 import logo from "./logo.svg";
@@ -30,6 +31,9 @@ var transactionResceived = paymentSent.then(() => {
       console.log(event);
       if ("AccountSet" === event["transaction"].TransactionType) {
         console.log("This is an account set event");
+        decodeMemo(event["transaction"].Memos);
+        // decodeMemo(event)
+        // event["transaction"];
       }
       return Promise.resolve(event);
     }
@@ -147,6 +151,13 @@ function App() {
       </header>
     </div>
   );
+}
+
+function decodeMemo(memo: any[]) {
+  console.log(parseInt(memo[0].Memo.MemoData, 16));
+  console.log(parseInt(memo[1].Memo.MemoData, 16));
+  console.log(parseInt(memo[2].Memo.MemoData, 16));
+  console.log(parseInt(memo[3].Memo.MemoData, 16));
 }
 
 export default App;
