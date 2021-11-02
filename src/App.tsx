@@ -1,28 +1,88 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import logo from "./logo.svg";
-import { xrplClient, xrplClientTwo } from "./XrplApiSandbox";
+import { xrplClient } from "./XrplApiSandbox";
 
 // Can import and run TS scripts this way if so desired
 // import './XrplApiSandbox/scripts/sendXrp';
 // import './XrplApiSandbox/scripts/sendEscrow';
 
+const bankWallet = "r9p1bSBqgBF96GAexQhDqcwmnPjVF43ji7";
+const oracleWallet = "r9p1bSBqgBF96GAexQhDqcwmnPjVF43ji7";
+
 // Generate testnet wallets
-const generateWalletRequestOne = xrplClient.generateFaucetWallet();
-// const generateWalletRequestTwo = xrplClientTwo.generateFaucetWallet();
+var walletCreated = xrplClient.generateFaucetWallet();
+
+var playerWallet;
+var paymentSent = walletCreated.then((result) => {
+  console.log("wallet created");
+  playerWallet = result?.account;
+  xrplClient.sendPayment(1, bankWallet);
+});
+var transactionResceived = paymentSent.then(() => {
+  console.log("payment sent");
+  xrplClient.subscribeToAccountTransactions(
+    {
+      accounts: [oracleWallet],
+    },
+    (event: any) => {
+      // if ()event.transactions.TransactionType
+      console.log(event);
+      if ("AccountSet" === event["transaction"].TransactionType) {
+        console.log("This is an account set event");
+      }
+      return Promise.resolve(event);
+    }
+  );
+});
 
 function App() {
+  console.log("App called");
   const [logs, setLogs] = useState<unknown[]>([]);
 
   useEffect(() => {
-    generateWalletRequestOne.then((result) => {
+    walletCreated.then((result) => {
       setLogs((logState) => [
         result,
-        "Created faucet wallet for Client 1",
+        "Created faucet wallet for Client",
         ...logState,
       ]);
     });
   }, []);
+
+  useEffect(() => {
+    walletCreated.then(() => {
+      xrplClient
+        .sendPayment(1, bankWallet)
+        .then((result) =>
+          setLogs((logState) => [result, "Sent 1 XRP to bank", ...logState])
+        );
+    });
+  }, []);
+
+  // useEffect(() => {
+  //   transactionResceived.then((event: any) => {
+  //     if (event) {
+  //       if ("AccountSet" === event["transaction"].TransactionType) {
+  //         setLogs((logState) => [
+  //           event,
+  //           "This is an account set event",
+  //           ...logState,
+  //         ]);
+  //       }
+  //     }
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   txSubscription.then((result) => {
+  //     setLogs((logState) => [
+  //       result,
+  //       "Received transaction event",
+  //       ...logState,
+  //     ]);
+  //   });
+  // });
 
   // useEffect(() => {
   //   generateWalletRequestTwo.then((result) => {
