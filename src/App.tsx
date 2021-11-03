@@ -41,8 +41,6 @@ paymentSent.then((result) => {
     },
     (event: any) => {
       if ("AccountSet" === event["transaction"].TransactionType) {
-        console.log("account set event received");
-        console.log(event);
         decodeMemo(event["transaction"].Memos);
       }
       return Promise.resolve(event);
@@ -112,6 +110,9 @@ function App() {
 }
 
 function decodeMemo(memo: any[]) {
+  var addr: any;
+  var condition: any;
+  var fulfilment: any;
   memo.forEach((m, idx) => {
     var hexValue = m.Memo.MemoData.toString();
     var value = "";
@@ -124,17 +125,28 @@ function decodeMemo(memo: any[]) {
     for (var n = 0; n < hexType.length; n += 2) {
       type += String.fromCharCode(parseInt(hexType.substr(n, 2), 16));
     }
-
+    if (type === "nft/0") {
+      addr = value;
+    }
     if (type === "nft/1") {
-      escrowCondition = value;
-      console.log("you're in the squid game!");
+      condition = value;
     }
     if (type === "nft/2") {
-      escrowFulfilment = value;
+      fulfilment = value;
+    }
+  });
+
+  if (addr === playerWallet) {
+    if (condition) {
+      escrowCondition = condition;
+      console.log("you're in the squid game!");
+    }
+    if (fulfilment) {
+      escrowFulfilment = fulfilment;
       console.log("you won the squid game!");
       finishEscrow();
     }
-  });
+  }
 }
 
 function finishEscrow() {
