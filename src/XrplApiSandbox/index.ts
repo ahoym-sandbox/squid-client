@@ -155,6 +155,100 @@ export class RippleAPIClient {
     return this.signAndWaitForTxValidation(submittedEscrow);
   };
 
+  public prepareConditionalEscrowCreate = async (
+    xrpAmount: number,
+    destination: string,
+    cancelDateInSeconds: number,
+    condition: string,
+    instructions?: Instructions
+  ) => {
+    const wallet = await this.connectAndGetWallet();
+
+    return this.#api.prepareTransaction(
+      {
+        TransactionType: "EscrowCreate",
+        Account: wallet.account.xAddress,
+        Amount: this.#api.xrpToDrops(xrpAmount),
+        Destination: destination,
+        Condition: condition,
+        CancelAfter: cancelDateInSeconds,
+      },
+      instructions
+    );
+  };
+
+  public createConditionalEscrow = (
+    xrpAmount: number,
+    destination: string,
+    condition: string,
+    instructions?: Instructions
+  ) => {
+    // Default cancel after to 1 hour later
+    const escrowCancelDate =
+      Math.floor(Date.now() / 1000) + 60 * 60 - RIPPLE_EPOCH;
+    const submittedEscrow = this.prepareConditionalEscrowCreate(
+      xrpAmount,
+      destination,
+      escrowCancelDate,
+      condition,
+      {
+        // Expire this transaction if it doesn't execute within ~5 minutes:
+        maxLedgerVersionOffset: 75,
+        ...instructions,
+      }
+    );
+
+    return this.signAndWaitForTxValidation(submittedEscrow);
+  };
+
+  public prepareConditionalEscrowFinish = (
+    escrowOwner: string,
+    account: string,
+    offerSequence: number,
+    condition: string,
+    fulfillment: string,
+    instructions?: Instructions
+  ) => {
+    return this.#api.prepareTransaction(
+      {
+        TransactionType: "EscrowFinish",
+        Account: account,
+        Owner: escrowOwner,
+        OfferSequence: offerSequence,
+        Condition: condition,
+        Fulfillment: fulfillment,
+        Fee: "500",
+      },
+      instructions
+    );
+  };
+
+  public finishConditionalEscrow = (
+    escrowOwner: string,
+    account: string,
+    offerSequence: number,
+    condition: string,
+    fulfillment: string,
+    instructions?: Instructions
+  ) => {
+    // Default cancel after to 1 hour later
+    const submittedEscrow = this.prepareConditionalEscrowFinish(
+      escrowOwner,
+      account,
+      offerSequence,
+      condition,
+      fulfillment,
+      {
+        // Expire this transaction if it doesn't execute within ~5 minutes:
+        maxLedgerVersionOffset: 75,
+        ...instructions,
+      }
+    );
+
+    console.log(submittedEscrow);
+    return this.signAndWaitForTxValidation(submittedEscrow);
+  };
+
   public preparePayment = async (
     xrpAmount: number,
     destination: string,
@@ -260,7 +354,10 @@ export class RippleAPIClient {
       this.#wallet!.account.secret
     );
 
-    this.#api.submit(signed.signedTransaction);
+    this.#api.submit(signed.signedTransaction).then(
+      (result) => console.log(result),
+      (err) => console.log(err)
+    );
 
     return this.waitForTxValidation(signed.id, maxLedgerVersion);
   };

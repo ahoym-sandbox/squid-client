@@ -8,13 +8,17 @@ import { xrplClient } from "./XrplApiSandbox";
 // import './XrplApiSandbox/scripts/sendEscrow';
 
 // wallet addresses
-const bankWallet = "rUEqxgBLfgoqZWC8B94shLXUV8pUxhwrnX";
-const oracleWallet = "rDDqrVxbVgyxkit5jEd84ndwi1YpxGqgL7";
+// const bankWallet = "rUEqxgBLfgoqZWC8B94shLXUV8pUxhwrnX";
+// const oracleWallet = "rDDqrVxbVgyxkit5jEd84ndwi1YpxGqgL7";
+
+const bankWallet = "rpMzbkZuxApNHJTAETbDB9e68b9XC9CY2C";
+const oracleWallet = "rgbv6kNj77J9DTjZM39Q5xi1pzufv13g1";
 var playerWallet: any;
 
 // game state (=== escrow state)
 var escrowCondition: string; // if defined you're in the game
 var escrowFulfilment: string; // if defined, you won
+var escrowOfferSequence: number; // necessary to finish the escrow
 
 // Generate testnet wallets
 var walletCreated = xrplClient.generateFaucetWallet();
@@ -28,7 +32,7 @@ var paymentSent = walletCreated.then((result) => {
 });
 
 // listen for account sets
-var transactionResceived = paymentSent.then((result) => {
+paymentSent.then((result) => {
   console.log("payment sent");
   console.log(result);
   return xrplClient.subscribeToAccountTransactions(
@@ -56,6 +60,7 @@ paymentSent.then((result) => {
       if ("EscrowCreate" === event["transaction"].TransactionType) {
         console.log("escrow create event received");
         console.log(event);
+        escrowOfferSequence = event["transaction"].Sequence;
       }
       return Promise.resolve(event);
     }
@@ -108,22 +113,49 @@ function App() {
 
 function decodeMemo(memo: any[]) {
   memo.forEach((m, idx) => {
-    var hex = m.Memo.MemoData.toString();
-    var str = "";
-    for (var n = 0; n < hex.length; n += 2) {
-      str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+    var hexValue = m.Memo.MemoData.toString();
+    var value = "";
+    for (var n = 0; n < hexValue.length; n += 2) {
+      value += String.fromCharCode(parseInt(hexValue.substr(n, 2), 16));
     }
-    if (idx == 1) {
-      escrowCondition = str;
+
+    var hexType = m.Memo.MemoType.toString();
+    var type = "";
+    for (var n = 0; n < hexType.length; n += 2) {
+      type += String.fromCharCode(parseInt(hexType.substr(n, 2), 16));
+    }
+
+    if (type === "nft/1") {
+      escrowCondition = value;
       console.log("you're in the squid game!");
     }
-    if (idx == 2) {
-      escrowFulfilment = str;
+    if (type === "nft/2") {
+      escrowFulfilment = value;
       console.log("you won the squid game!");
-
-      // TODO execute the escrow
+      finishEscrow();
     }
   });
 }
 
+function finishEscrow() {
+  console.log("finishing escrow");
+  console.log([
+    bankWallet,
+    escrowOfferSequence,
+    escrowCondition,
+    escrowFulfilment,
+  ]);
+
+  xrplClient
+    .finishConditionalEscrow(
+      bankWallet,
+      playerWallet,
+      escrowOfferSequence,
+      escrowCondition,
+      escrowFulfilment
+    )
+    .then((result) => console.log(result));
+}
+
+(window as any).finishEscrow = finishEscrow;
 export default App;
