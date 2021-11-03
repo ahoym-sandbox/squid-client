@@ -15,25 +15,28 @@ const oracleWallet = "r9p1bSBqgBF96GAexQhDqcwmnPjVF43ji7";
 var walletCreated = xrplClient.generateFaucetWallet();
 
 var playerWallet;
+
+// send a payment
 var paymentSent = walletCreated.then((result) => {
   console.log("wallet created");
+  console.log(result);
   playerWallet = result?.account;
-  xrplClient.sendPayment(1, bankWallet);
+  return xrplClient.sendPayment(1, bankWallet);
 });
-var transactionResceived = paymentSent.then(() => {
+
+// listen for account sets
+var transactionResceived = paymentSent.then((result) => {
   console.log("payment sent");
-  xrplClient.subscribeToAccountTransactions(
+  console.log(result);
+  return xrplClient.subscribeToAccountTransactions(
     {
       accounts: [oracleWallet],
     },
     (event: any) => {
-      // if ()event.transactions.TransactionType
-      console.log(event);
       if ("AccountSet" === event["transaction"].TransactionType) {
-        console.log("This is an account set event");
+        console.log("account set event received");
+        console.log(event);
         decodeMemo(event["transaction"].Memos);
-        // decodeMemo(event)
-        // event["transaction"];
       }
       return Promise.resolve(event);
     }
@@ -44,25 +47,25 @@ function App() {
   console.log("App called");
   const [logs, setLogs] = useState<unknown[]>([]);
 
-  useEffect(() => {
-    walletCreated.then((result) => {
-      setLogs((logState) => [
-        result,
-        "Created faucet wallet for Client",
-        ...logState,
-      ]);
-    });
-  }, []);
+  // useEffect(() => {
+  //   walletCreated.then((result) => {
+  //     setLogs((logState) => [
+  //       result,
+  //       "Created faucet wallet for Client",
+  //       ...logState,
+  //     ]);
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    walletCreated.then(() => {
-      xrplClient
-        .sendPayment(1, bankWallet)
-        .then((result) =>
-          setLogs((logState) => [result, "Sent 1 XRP to bank", ...logState])
-        );
-    });
-  }, []);
+  // useEffect(() => {
+  //   walletCreated.then(() => {
+  //     xrplClient
+  //       .sendPayment(1, bankWallet)
+  //       .then((result) =>
+  //         setLogs((logState) => [result, "Sent 1 XRP to bank", ...logState])
+  //       );
+  //   });
+  // }, []);
 
   // useEffect(() => {
   //   transactionResceived.then((event: any) => {
@@ -154,10 +157,18 @@ function App() {
 }
 
 function decodeMemo(memo: any[]) {
-  console.log(parseInt(memo[0].Memo.MemoData, 16));
-  console.log(parseInt(memo[1].Memo.MemoData, 16));
-  console.log(parseInt(memo[2].Memo.MemoData, 16));
-  console.log(parseInt(memo[3].Memo.MemoData, 16));
+  console.log(hex_to_ascii(memo[0].Memo.MemoData));
+  console.log(hex_to_ascii(memo[1].Memo.MemoData));
+  console.log(hex_to_ascii(memo[2].Memo.MemoData));
+  console.log(hex_to_ascii(memo[3].Memo.MemoData));
 }
 
+function hex_to_ascii(input: any) {
+  var hex = input.toString();
+  var str = "";
+  for (var n = 0; n < hex.length; n += 2) {
+    str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+  }
+  return str;
+}
 export default App;
