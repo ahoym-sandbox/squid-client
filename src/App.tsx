@@ -1,5 +1,4 @@
-import { decode } from "querystring";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import logo from "./logo.svg";
 import { xrplClient } from "./XrplApiSandbox";
@@ -8,13 +7,17 @@ import { xrplClient } from "./XrplApiSandbox";
 // import './XrplApiSandbox/scripts/sendXrp';
 // import './XrplApiSandbox/scripts/sendEscrow';
 
+// wallet addresses
 const bankWallet = "rUEqxgBLfgoqZWC8B94shLXUV8pUxhwrnX";
 const oracleWallet = "rDDqrVxbVgyxkit5jEd84ndwi1YpxGqgL7";
+var playerWallet: any;
+
+// game state (=== escrow state)
+var escrowCondition: string; // if defined you're in the game
+var escrowFulfilment: string; // if defined, you won
 
 // Generate testnet wallets
 var walletCreated = xrplClient.generateFaucetWallet();
-
-var playerWallet: any;
 
 // send a payment
 var paymentSent = walletCreated.then((result) => {
@@ -63,75 +66,6 @@ function App() {
   console.log("App called");
   const [logs, setLogs] = useState<unknown[]>([]);
 
-  // useEffect(() => {
-  //   walletCreated.then((result) => {
-  //     setLogs((logState) => [
-  //       result,
-  //       "Created faucet wallet for Client",
-  //       ...logState,
-  //     ]);
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   walletCreated.then(() => {
-  //     xrplClient
-  //       .sendPayment(1, bankWallet)
-  //       .then((result) =>
-  //         setLogs((logState) => [result, "Sent 1 XRP to bank", ...logState])
-  //       );
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   transactionResceived.then((event: any) => {
-  //     if (event) {
-  //       if ("AccountSet" === event["transaction"].TransactionType) {
-  //         setLogs((logState) => [
-  //           event,
-  //           "This is an account set event",
-  //           ...logState,
-  //         ]);
-  //       }
-  //     }
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   txSubscription.then((result) => {
-  //     setLogs((logState) => [
-  //       result,
-  //       "Received transaction event",
-  //       ...logState,
-  //     ]);
-  //   });
-  // });
-
-  // useEffect(() => {
-  //   generateWalletRequestTwo.then((result) => {
-  //     setLogs((logState) => [
-  //       result,
-  //       'Created faucet wallet for Client 2',
-  //       ...logState,
-  //     ]);
-  //   });
-  // }, []);
-
-  // useEffect(() => {
-  //   // After testnet wallet creations, send a 22 XRP payment
-  //   Promise.all([generateWalletRequestOne, generateWalletRequestTwo])
-  //     .then(() =>
-  //       xrplClient.sendPayment(22, xrplClientTwo.wallet()?.account.address!)
-  //     )
-  //     .then((result) => {
-  //       setLogs((logState) => [
-  //         result,
-  //         'Sent transaction from Wallet 1 to Wallet 2',
-  //         ...logState,
-  //       ]);
-  //     });
-  // }, []);
-
   return (
     <div className="App">
       <header className="App-header">
@@ -173,17 +107,23 @@ function App() {
 }
 
 function decodeMemo(memo: any[]) {
-  memo.forEach((m) => {
-    console.log(hex_to_ascii(m.Memo.MemoData));
+  memo.forEach((m, idx) => {
+    var hex = m.Memo.MemoData.toString();
+    var str = "";
+    for (var n = 0; n < hex.length; n += 2) {
+      str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+    }
+    if (idx == 1) {
+      escrowCondition = str;
+      console.log("you're in the squid game!");
+    }
+    if (idx == 2) {
+      escrowFulfilment = str;
+      console.log("you won the squid game!");
+
+      // TODO execute the escrow
+    }
   });
 }
 
-function hex_to_ascii(input: any) {
-  var hex = input.toString();
-  var str = "";
-  for (var n = 0; n < hex.length; n += 2) {
-    str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
-  }
-  return str;
-}
 export default App;
