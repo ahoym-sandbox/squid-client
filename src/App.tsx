@@ -8,8 +8,8 @@ import { xrplClient } from "./XrplApiSandbox";
 // import './XrplApiSandbox/scripts/sendXrp';
 // import './XrplApiSandbox/scripts/sendEscrow';
 
-const bankWallet = "r9p1bSBqgBF96GAexQhDqcwmnPjVF43ji7";
-const oracleWallet = "r9p1bSBqgBF96GAexQhDqcwmnPjVF43ji7";
+const bankWallet = "rDKbcVEGucHNk2em68BSKJjwVQPgYtUJMo";
+const oracleWallet = "rwpYuUsAnQ9LLFUJaCqFBzY5bQHvzxduJu";
 
 // Generate testnet wallets
 var walletCreated = xrplClient.generateFaucetWallet();
@@ -33,6 +33,7 @@ var transactionResceived = paymentSent.then((result) => {
       accounts: [oracleWallet],
     },
     (event: any) => {
+      console.log("event received");
       if ("AccountSet" === event["transaction"].TransactionType) {
         console.log("account set event received");
         console.log(event);
@@ -157,10 +158,9 @@ function App() {
 }
 
 function decodeMemo(memo: any[]) {
-  console.log(hex_to_ascii(memo[0].Memo.MemoData));
-  console.log(hex_to_ascii(memo[1].Memo.MemoData));
-  console.log(hex_to_ascii(memo[2].Memo.MemoData));
-  console.log(hex_to_ascii(memo[3].Memo.MemoData));
+  memo.forEach((m) => {
+    console.log(hex_to_ascii(m.Memo.MemoData));
+  });
 }
 
 function hex_to_ascii(input: any) {
