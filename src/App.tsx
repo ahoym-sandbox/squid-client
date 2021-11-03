@@ -8,19 +8,19 @@ import { xrplClient } from "./XrplApiSandbox";
 // import './XrplApiSandbox/scripts/sendXrp';
 // import './XrplApiSandbox/scripts/sendEscrow';
 
-const bankWallet = "rDKbcVEGucHNk2em68BSKJjwVQPgYtUJMo";
-const oracleWallet = "rwpYuUsAnQ9LLFUJaCqFBzY5bQHvzxduJu";
+const bankWallet = "rUEqxgBLfgoqZWC8B94shLXUV8pUxhwrnX";
+const oracleWallet = "rDDqrVxbVgyxkit5jEd84ndwi1YpxGqgL7";
 
 // Generate testnet wallets
 var walletCreated = xrplClient.generateFaucetWallet();
 
-var playerWallet;
+var playerWallet: any;
 
 // send a payment
 var paymentSent = walletCreated.then((result) => {
   console.log("wallet created");
   console.log(result);
-  playerWallet = result?.account;
+  playerWallet = result?.account?.address;
   return xrplClient.sendPayment(1, bankWallet);
 });
 
@@ -33,11 +33,26 @@ var transactionResceived = paymentSent.then((result) => {
       accounts: [oracleWallet],
     },
     (event: any) => {
-      console.log("event received");
       if ("AccountSet" === event["transaction"].TransactionType) {
         console.log("account set event received");
         console.log(event);
         decodeMemo(event["transaction"].Memos);
+      }
+      return Promise.resolve(event);
+    }
+  );
+});
+
+// listen for escrow creation
+paymentSent.then((result) => {
+  return xrplClient.subscribeToAccountTransactions(
+    {
+      accounts: [playerWallet],
+    },
+    (event: any) => {
+      if ("EscrowCreate" === event["transaction"].TransactionType) {
+        console.log("escrow create event received");
+        console.log(event);
       }
       return Promise.resolve(event);
     }

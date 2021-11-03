@@ -6,8 +6,8 @@ import {
   Prepare,
   RippleAPI,
   TransactionJSON,
-} from 'ripple-lib';
-import { FaucetWallet } from 'ripple-lib/dist/npm/wallet/wallet-generation';
+} from "ripple-lib";
+import { FaucetWallet } from "ripple-lib/dist/npm/wallet/wallet-generation";
 
 const RIPPLE_EPOCH = 946684800;
 
@@ -51,7 +51,7 @@ export class RippleAPIClient {
 
   public connectAndGetWallet = async () => {
     if (this.#wallet === null) {
-      throw new Error('Input wallet credentials or instantiate a new one.');
+      throw new Error("Input wallet credentials or instantiate a new one.");
     }
 
     await this.connect();
@@ -60,7 +60,7 @@ export class RippleAPIClient {
 
   public getAccountInfo = () => {
     if (this.#wallet === null) {
-      throw new Error('Input wallet credentials or instantiate a new one.');
+      throw new Error("Input wallet credentials or instantiate a new one.");
     }
 
     return this.#api.getAccountInfo(this.#wallet.account.address!);
@@ -90,7 +90,7 @@ export class RippleAPIClient {
 
     return this.#api.prepareTransaction(
       {
-        TransactionType: 'EscrowCreate',
+        TransactionType: "EscrowCreate",
         Account: wallet.account.xAddress,
         Amount: this.#api.xrpToDrops(xrpAmount),
         Destination: destination,
@@ -128,7 +128,7 @@ export class RippleAPIClient {
   ) => {
     return this.#api.prepareTransaction(
       {
-        TransactionType: 'EscrowFinish',
+        TransactionType: "EscrowFinish",
         Account: escrowOwner,
         Owner: escrowOwner,
         OfferSequence: offerSequence,
@@ -164,7 +164,7 @@ export class RippleAPIClient {
 
     return this.#api.prepareTransaction(
       {
-        TransactionType: 'Payment',
+        TransactionType: "Payment",
         Account: wallet.account.xAddress,
         Amount: this.#api.xrpToDrops(xrpAmount),
         Destination: destination,
@@ -195,11 +195,11 @@ export class RippleAPIClient {
     subscribeOptions: SubscribeOptions,
     onTransaction: (event: TxEvent) => Promise<unknown>
   ) => {
-    this.#api.request('subscribe', {
+    this.#api.request("subscribe", {
       accounts: subscribeOptions.accounts,
     });
 
-    this.#api.connection.on('transaction', (event: TxEvent) => {
+    this.#api.connection.on("transaction", (event: TxEvent) => {
       onTransaction(event);
     });
   };
@@ -217,20 +217,20 @@ export class RippleAPIClient {
       accounts = [this.#wallet.account.address!];
     }
 
-    this.#api.request('subscribe', {
+    this.#api.request("subscribe", {
       accounts,
     });
     let hasFinalStatus = false;
 
     return new Promise((resolve, reject) => {
-      this.#api.connection.on('transaction', (event) => {
+      this.#api.connection.on("transaction", (event) => {
         if (event.transaction.hash === txId) {
           hasFinalStatus = true;
           resolve(event);
         }
       });
 
-      this.#api.connection.on('ledger', (ledger) => {
+      this.#api.connection.on("ledger", (ledger) => {
         if (maxLedgerVersion) {
           if (ledger.ledgerVersion > maxLedgerVersion && !hasFinalStatus) {
             hasFinalStatus = true;
@@ -250,7 +250,7 @@ export class RippleAPIClient {
     transactionPreparation: Promise<Prepare>
   ) => {
     if (this.#wallet === null) {
-      throw new Error('Input wallet credentials or instantiate a new one.');
+      throw new Error("Input wallet credentials or instantiate a new one.");
     }
 
     const preparedTx = await transactionPreparation;
@@ -266,7 +266,7 @@ export class RippleAPIClient {
   };
 }
 
-const TEST_NET = 'wss://s.altnet.rippletest.net:51233';
+const TEST_NET = "wss://s.altnet.rippletest.net:51233";
 
 export function generateTestnetXrplClient() {
   return new RippleAPIClient({ server: TEST_NET });
