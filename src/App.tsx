@@ -206,7 +206,14 @@ function App() {
         )}
 
         {playerWallet ? (
-          <p className="wallet-address">{playerWallet}</p>
+          <a
+            href={`https://testnet.xrpl.org/accounts/${playerWallet}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="wallet-address"
+          >
+            {playerWallet}
+          </a>
         ) : (
           <p className="wallet-loading">{'Joining Squid Game....'}</p>
         )}

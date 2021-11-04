@@ -96,6 +96,9 @@
   font-size: 20px;
   font-weight: 400;
   animation: fadein 1s ease-in;
+  color: white;
+  text-decoration: none;
+  display: block;
 }
 
 .wallet-loading {
