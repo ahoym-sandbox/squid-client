@@ -1,5 +1,25 @@
 .App {
   text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(
+    to right,
+    #0a826c 10%,
+    white 10%,
+    white 20%,
+    #0a826c 20%,
+    #0a826c 80%,
+    white 80%,
+    white 90%,
+    #0a826c 90%,
+    #0a826c 100%
+  );
 }
 
 .App-logo {
@@ -11,17 +31,6 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
-
-.App-header {
-  background-color: black;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -60,6 +69,26 @@
   animation: fadein 3s ease-in;
 }
 
+.Number {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  font-size: 200px;
+  font-weight: 600;
+}
+
+.number-flip {
+  animation-name: flip;
+  animation-duration: 0.2s;
+  animation-iteration-count: infinite;
+  animation-delay: 0.5s;
+}
+
+.wallet-address {
+  font-size: 20px;
+  font-weight: 400;
+}
+
 @keyframes fadein {
   0% {
     opacity: 0;
@@ -75,5 +104,16 @@
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes flip {
+  from {
+    -webkit-transform: rotateY(0deg);
+    transform: rotateY(0deg);
+  }
+  to {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
   }
 }
