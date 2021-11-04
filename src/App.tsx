@@ -22,9 +22,12 @@ var escrowCondition: string; // if defined you're in the game
 var escrowFulfilment: string; // if defined, you won
 var escrowOfferSequence: number; // necessary to finish the escrow
 
+const MY_DIGIT_ONE = Math.floor(Math.random() * 10);
+const MY_DIGIT_TWO = Math.floor(Math.random() * 10);
+const MY_DIGIT_THREE = Math.floor(Math.random() * 10);
+
 function App() {
-  console.log('App called');
-  const [logs] = useState<unknown[]>([]);
+  const [logs, setLogs] = useState<unknown[]>([]);
   const [playerWallet, setPlayerWallet] = useState<any>(null);
   const [winner, setWinner] = useState<boolean>(false);
   const [hideCurtain, setHideCurtain] = useState<boolean>(false);
@@ -58,8 +61,6 @@ function App() {
       });
   }, [playerWallet]);
 
-  console.log('playerwallet', playerWallet);
-
   const decodeMemo = useCallback(
     (memo: any[]) => {
       var addr: any;
@@ -92,15 +93,15 @@ function App() {
         }
       });
 
+      if (message) {
+        console.log(message);
+        setLogs((logs) => [`${new Date()} -- ${message}`, ...logs]);
+      }
+
       if (addr === playerWallet) {
         if (condition) {
           escrowCondition = condition;
-
-          if (message) {
-            console.log(message);
-          } else {
-            console.log("you're in the squid game!");
-          }
+          console.log("you're in the squid game!");
         }
         if (fulfilment) {
           escrowFulfilment = fulfilment;
@@ -192,9 +193,9 @@ function App() {
       <div className="Squid">
         {playerWallet ? (
           <>
-            <Number number={Math.floor(Math.random() * 10)} />
-            <Number number={Math.floor(Math.random() * 10)} />
-            <Number number={Math.floor(Math.random() * 10)} />
+            <Number number={MY_DIGIT_ONE} />
+            <Number number={MY_DIGIT_TWO} />
+            <Number number={MY_DIGIT_THREE} />
           </>
         ) : (
           <>
