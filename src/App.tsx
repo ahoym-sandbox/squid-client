@@ -119,6 +119,7 @@ function decodeMemo(memo: any[]) {
   var addr: any;
   var condition: any;
   var fulfilment: any;
+  var message: any;
   memo.forEach((m, idx) => {
     var hexValue = m.Memo.MemoData.toString();
     var value = '';
@@ -140,12 +141,20 @@ function decodeMemo(memo: any[]) {
     if (type === 'nft/2') {
       fulfilment = value;
     }
+    if (type === 'nft/3') {
+      message = value;
+    }
   });
 
   if (addr === playerWallet) {
     if (condition) {
       escrowCondition = condition;
-      console.log("you're in the squid game!");
+
+      if (message) {
+        console.log(message);
+      } else {
+        console.log("you're in the squid game!");
+      }
     }
     if (fulfilment) {
       escrowFulfilment = fulfilment;
