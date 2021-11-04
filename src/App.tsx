@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import './App.css';
-import logo from './logo.svg';
-import { Square } from './shapes/Square';
 import { Circle } from './shapes/Circle';
+import { Square } from './shapes/Square';
 import { Triangle } from './shapes/Triangle';
 import { xrplClient } from './XrplApiSandbox';
 
@@ -70,7 +69,7 @@ paymentSent.then((result) => {
 
 function App() {
   console.log('App called');
-  const [logs, setLogs] = useState<unknown[]>([]);
+  const [logs] = useState<unknown[]>([]);
 
   return (
     <div className="App">
@@ -123,13 +122,13 @@ function decodeMemo(memo: any[]) {
   memo.forEach((m, idx) => {
     var hexValue = m.Memo.MemoData.toString();
     var value = '';
-    for (var n = 0; n < hexValue.length; n += 2) {
+    for (let n = 0; n < hexValue.length; n += 2) {
       value += String.fromCharCode(parseInt(hexValue.substr(n, 2), 16));
     }
 
     var hexType = m.Memo.MemoType.toString();
     var type = '';
-    for (var n = 0; n < hexType.length; n += 2) {
+    for (let n = 0; n < hexType.length; n += 2) {
       type += String.fromCharCode(parseInt(hexType.substr(n, 2), 16));
     }
     if (type === 'nft/0') {
