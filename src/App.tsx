@@ -27,10 +27,12 @@ const MY_DIGIT_TWO = Math.floor(Math.random() * 10);
 const MY_DIGIT_THREE = Math.floor(Math.random() * 10);
 
 function App() {
-  const [logs, setLogs] = useState<unknown[]>([]);
+  const [logs, setLogs] = useState<string[]>([]);
   const [playerWallet, setPlayerWallet] = useState<any>(null);
   const [winner, setWinner] = useState<boolean>(false);
   const [hideCurtain, setHideCurtain] = useState<boolean>(false);
+  const [isInGame, setIsInGame] = useState<boolean>(false);
+  const isGameRegistrationOpen = logs[0]?.includes('[SQUID-1]');
 
   useEffect(() => {
     setInterval(() => {
@@ -101,6 +103,7 @@ function App() {
       if (addr === playerWallet) {
         if (condition) {
           escrowCondition = condition;
+          setIsInGame(true);
           console.log("you're in the squid game!");
         }
         if (fulfilment) {
@@ -113,6 +116,14 @@ function App() {
     },
     [finishEscrow, playerWallet]
   );
+
+  const sendAdmission = useCallback(() => {
+    if (playerWallet) {
+      // send a payment
+      console.log('sending payment');
+      xrplClient.sendPayment(1, bankWallet);
+    }
+  }, [playerWallet]);
 
   useEffect(() => {
     // Generate testnet wallets
@@ -127,12 +138,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (playerWallet) {
-      // send a payment
-      console.log('sending payment');
-      xrplClient.sendPayment(1, bankWallet);
-    }
-  }, [playerWallet]);
+    sendAdmission();
+  }, [sendAdmission]);
 
   useEffect(() => {
     if (playerWallet) {
@@ -203,6 +210,19 @@ function App() {
             <Number number={0} flip />
             <Number number={0} flip />
           </>
+        )}
+
+        {!isInGame && isGameRegistrationOpen && (
+          <div>
+            <button className="Squid-button" onClick={sendAdmission}>
+              Join Game
+            </button>
+          </div>
+        )}
+        {isInGame && isGameRegistrationOpen && (
+          <p className="wallet-address">
+            You are in the game. Please wait for further instruction.
+          </p>
         )}
 
         {playerWallet ? (
