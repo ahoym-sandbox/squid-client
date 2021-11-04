@@ -27,6 +27,7 @@ function App() {
   console.log("App called");
   const [logs, setLogs] = useState<unknown[]>([]);
   const [playerWallet, setPlayerWallet] = useState<any>(null);
+  const [winner, setWinner] = useState<boolean>(false);
 
   const finishEscrow = useCallback(() => {
     console.log("finishing escrow");
@@ -45,7 +46,10 @@ function App() {
         escrowCondition,
         escrowFulfilment
       )
-      .then((result) => console.log(result));
+      .then((result) => {
+        console.log(result);
+        setWinner(true);
+      });
   }, [playerWallet]);
 
   console.log("playerwallet", playerWallet);
@@ -95,6 +99,7 @@ function App() {
         if (fulfilment) {
           escrowFulfilment = fulfilment;
           console.log("you won the squid game!");
+
           finishEscrow();
         }
       }
@@ -160,6 +165,14 @@ function App() {
       );
     }
   }, [playerWallet]);
+
+  if (winner) {
+    return (
+      <div className="Winner">
+        <img src={process.env.PUBLIC_URL + "/winner.gif"} alt="winner" />
+      </div>
+    );
+  }
 
   return (
     <div className="App">

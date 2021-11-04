@@ -1,4 +1,5 @@
-.App {
+.App,
+.Winner {
   text-align: center;
   min-height: 100vh;
   display: flex;
@@ -8,6 +9,9 @@
   font-size: calc(10px + 2vmin);
   color: white;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.App {
   background: linear-gradient(
     to right,
     #0a826c 10%,
@@ -20,6 +24,10 @@
     #0a826c 90%,
     #0a826c 100%
   );
+}
+
+.Winner {
+  background-color: black;
 }
 
 .App-logo {
@@ -93,6 +101,10 @@
 .wallet-loading {
   font-size: 20px;
   font-weight: 400;
+
+  box-shadow: 0 0 0 0 rgba(225, 225, 225, 1);
+  transform: scale(1);
+  animation: pulse 2s infinite;
 }
 
 @keyframes fadein {
@@ -121,5 +133,22 @@
   to {
     -webkit-transform: rotateY(180deg);
     transform: rotateY(180deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(225, 225, 225, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(225, 225, 225, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(225, 225, 225, 0);
   }
 }
