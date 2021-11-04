@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
-// import { Square } from './shapes/Square';
-// import { Circle } from './shapes/Circle';
-// import { Triangle } from './shapes/Triangle';
-import { xrplClient } from './XrplApiSandbox';
+import { Circle } from './shapes/Circle';
 import { Number } from './shapes/Number';
+import { Square } from './shapes/Square';
+import { Triangle } from './shapes/Triangle';
+import { xrplClient } from './XrplApiSandbox';
 
 // Can import and run TS scripts this way if so desired
 // import './XrplApiSandbox/scripts/sendXrp';
@@ -27,6 +27,13 @@ function App() {
   const [logs] = useState<unknown[]>([]);
   const [playerWallet, setPlayerWallet] = useState<any>(null);
   const [winner, setWinner] = useState<boolean>(false);
+  const [hideCurtain, setHideCurtain] = useState<boolean>(false);
+
+  useEffect(() => {
+    setInterval(() => {
+      setHideCurtain(true);
+    }, 3000);
+  }, []);
 
   const finishEscrow = useCallback(() => {
     console.log('finishing escrow');
@@ -175,6 +182,13 @@ function App() {
 
   return (
     <div className="App">
+      <div
+        className={`Curtain ${hideCurtain ? 'Curtain-hide' : 'Curtain-show'}`}
+      >
+        <Circle />
+        <Triangle />
+        <Square />
+      </div>
       <div className="Squid">
         {playerWallet ? (
           <>
