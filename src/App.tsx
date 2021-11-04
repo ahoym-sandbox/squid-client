@@ -178,7 +178,11 @@ function App() {
           </>
         )}
 
-        <p className="wallet-address">{playerWallet}</p>
+        {playerWallet ? (
+          <p className="wallet-address">{playerWallet}</p>
+        ) : (
+          <p className="wallet-loading">{"Joining Squid Game...."}</p>
+        )}
       </div>
 
       <div className="App-logs">

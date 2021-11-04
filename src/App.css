@@ -87,6 +87,12 @@
 .wallet-address {
   font-size: 20px;
   font-weight: 400;
+  animation: fadein 1s ease-in;
+}
+
+.wallet-loading {
+  font-size: 20px;
+  font-weight: 400;
 }
 
 @keyframes fadein {
